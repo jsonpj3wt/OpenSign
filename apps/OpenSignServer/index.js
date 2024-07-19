@@ -100,7 +100,7 @@ export const config = {
   masterKeyIps: ['0.0.0.0/0', '::/0'], // '::1'
   serverURL: 'http://localhost:8080/app', // Don't forget to change to https if needed
   verifyUserEmails: false,
-  publicServerURL: process.env.SERVER_URL || 'http://localhost:8080/app',
+  publicServerURL: process.env.SERVER_URL || 'http://127.0.0.1:8080/app',
   // Your apps name. This will appear in the subject and body of the emails that are sent.
   appName: 'Opensign',
   allowClientClassCreation: false,
@@ -219,8 +219,8 @@ if (!process.env.TESTING) {
     // console.log('isWindows', isWindows);
 
     const migrate = isWindows
-      ? `set APPLICATION_ID=${process.env.APP_ID}&& set SERVER_URL=${process.env.SERVER_URL}/app&& set MASTER_KEY=${process.env.MASTER_KEY}&& npx parse-dbtool migrate`
-      : `APPLICATION_ID=${process.env.APP_ID} SERVER_URL=${process.env.SERVER_URL}/app MASTER_KEY=${process.env.MASTER_KEY} npx parse-dbtool migrate`;
+      ? `set APPLICATION_ID=${process.env.APP_ID}&& set SERVER_URL=${config.publicServerURL}/app&& set MASTER_KEY=${process.env.MASTER_KEY}&& npx parse-dbtool migrate`
+      : `APPLICATION_ID=${process.env.APP_ID} SERVER_URL=${config.publicServerURL}/app MASTER_KEY=${process.env.MASTER_KEY} npx parse-dbtool migrate`;
     exec(migrate, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error: ${error.message}`);
