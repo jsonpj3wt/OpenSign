@@ -34,8 +34,8 @@ if (useLocal !== 'true') {
       presignedUrlExpires: 900,
       fileAcl: 'none',
       s3overrides: {
-        accessKeyId: process.env.DO_ACCESS_KEY_ID,
-        secretAccessKey: process.env.DO_SECRET_ACCESS_KEY,
+        accessKeyId: process.env.DO_ACCESS_KEY_ID ?? null,
+        secretAccessKey: process.env.DO_SECRET_ACCESS_KEY ?? null,
         endpoint: spacesEndpoint,
       },
     };
