@@ -14,12 +14,15 @@ RUN npm install
 COPY ./ .
 COPY ./.husky .
 
-# Make port 3000 available to the world outside this container
-EXPOSE 3000
+# Make port configurable
+ARG PORT=3000
+ENV PORT=${PORT}
 
-# Define environment variables if needed
-# ENV NODE_ENV production
+# Build the React application
+RUN npm run build
+
+# Make port available to the world outside this container
+EXPOSE ${PORT}
 
 # Run the application
 ENTRYPOINT npm run start
-

@@ -22,6 +22,7 @@ import { SSOAuth } from './auth/authadapter.js';
 let fsAdapter;
 if (useLocal !== 'true') {
   try {
+    console.log('Setting up S3');
     const spacesEndpoint = new AWS.Endpoint(process.env.DO_ENDPOINT);
     const s3Options = {
       bucket: process.env.DO_SPACE, // globalConfig.S3FilesAdapter.bucket,
@@ -31,6 +32,7 @@ if (useLocal !== 'true') {
       preserveFileName: true,
       presignedUrl: true,
       presignedUrlExpires: 900,
+      fileAcl: 'none',
       s3overrides: {
         accessKeyId: process.env.DO_ACCESS_KEY_ID,
         secretAccessKey: process.env.DO_SECRET_ACCESS_KEY,
@@ -61,15 +63,16 @@ if (smtpenable) {
       port: process.env.SMTP_PORT || 465,
       secure: smtpsecure,
       auth: {
-        user: process.env.SMTP_USER_EMAIL,
+        user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
-      },
+      }
     });
     await transporterMail.verify();
     isMailAdapter = true;
   } catch (err) {
     isMailAdapter = false;
-    console.log('Please provide valid SMTP credentials');
+    console.log(err);
+    console.log(`Please provide valid SMTP credentials: Family: ${process.env.SMTP_FAMILY || 4}`);
   }
 } else if (process.env.MAILGUN_API_KEY) {
   try {
@@ -85,7 +88,7 @@ if (smtpenable) {
     console.log('Please provide valid Mailgun credentials');
   }
 }
-const mailsender = smtpenable ? process.env.SMTP_USER_EMAIL : process.env.MAILGUN_SENDER;
+const mailsender = smtpenable ? process.env.SMTP_EMAIL : process.env.MAILGUN_SENDER;
 export const config = {
   databaseURI:
     process.env.DATABASE_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/dev',
@@ -98,7 +101,7 @@ export const config = {
   maxUploadSize: '30mb',
   masterKey: process.env.MASTER_KEY, //Add your master key here. Keep it secret!
   masterKeyIps: ['0.0.0.0/0', '::/0'], // '::1'
-  serverURL: 'http://localhost:8080/app', // Don't forget to change to https if needed
+  serverURL: process.env.SERVER_URL || 'http://localhost:8080/app', // Don't forget to change to https if needed
   verifyUserEmails: false,
   publicServerURL: process.env.SERVER_URL || 'http://127.0.0.1:8080/app',
   // Your apps name. This will appear in the subject and body of the emails that are sent.
@@ -185,6 +188,25 @@ app.use(function (req, res, next) {
 // Serve static assets from the /public folder
 app.use('/public', express.static(path.join(__dirname, '/public')));
 
+app.get('/test-s3', async (req, res) => {
+  try {
+
+      // Initialize the S3 client
+      const s3 = new AWS.S3({
+        accessKeyId: process.env.DO_ACCESS_KEY_ID,
+        secretAccessKey: process.env.DO_SECRET_ACCESS_KEY,
+        region: process.env.DO_REGION,
+        endpoint: process.env.DO_ENDPOINT,
+        s3ForcePathStyle: true
+      });
+      const data = await s3.listObjectsV2({ Bucket: process.env.DO_SPACE }).promise();
+      res.json(data);
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error accessing S3');
+  }
+});
+
 // Serve the Parse API on the /parse URL prefix
 if (!process.env.TESTING) {
   const mountPath = process.env.PARSE_MOUNT || '/app';
@@ -219,8 +241,8 @@ if (!process.env.TESTING) {
     // console.log('isWindows', isWindows);
 
     const migrate = isWindows
-      ? `set APPLICATION_ID=${process.env.APP_ID}&& set SERVER_URL=${config.publicServerURL}/app&& set MASTER_KEY=${process.env.MASTER_KEY}&& npx parse-dbtool migrate`
-      : `APPLICATION_ID=${process.env.APP_ID} SERVER_URL=${config.publicServerURL}/app MASTER_KEY=${process.env.MASTER_KEY} npx parse-dbtool migrate`;
+      ? `set APPLICATION_ID=${process.env.APP_ID}&& set SERVER_URL=${config.publicServerURL}&& set MASTER_KEY=${process.env.MASTER_KEY}&& npx parse-dbtool migrate`
+      : `APPLICATION_ID=${process.env.APP_ID} SERVER_URL=${config.publicServerURL} MASTER_KEY=${process.env.MASTER_KEY} npx parse-dbtool migrate`;
     exec(migrate, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error: ${error.message}`);

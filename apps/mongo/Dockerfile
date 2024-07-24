@@ -8,4 +8,4 @@ RUN mkdir -p /docker-entrypoint-initdb.d
 COPY ./default-data/*.json /docker-entrypoint-initdb.d/
 
 # Execute the initialization script during container startup
-CMD ["mongod"]
+CMD ["mongod", "--ipv6", "--bind_ip_all"]

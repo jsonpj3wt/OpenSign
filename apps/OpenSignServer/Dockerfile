@@ -16,8 +16,12 @@ RUN npm install
 # Copy the current directory contents into the container
 COPY ./ .
 
-# Make port 8080 available to the world outside this container
-EXPOSE 8080
+# Make port configurable
+ARG PORT=8080
+ENV PORT=${PORT}
+
+# Make port available to the world outside this container
+EXPOSE ${PORT}
 
 # Define environment variables if needed
 # ENV NODE_ENV production
