@@ -61,7 +61,7 @@ async function sendMail(doc, signer) {
     extUserId: doc?.ExtUserPtr?.objectId,
     recipient: signer.Email,
     subject: mail.subject,
-    from: doc?.ExtUserPtr?.Email,
+    from: (process.env.SMTP_ENABLE ? process.env.SMTP_EMAIL || process.env.SMTP_USER : process.env.MAILGUN_SENDER) || doc?.ExtUserPtr?.Email,
     html: mail.body,
   };
   try {

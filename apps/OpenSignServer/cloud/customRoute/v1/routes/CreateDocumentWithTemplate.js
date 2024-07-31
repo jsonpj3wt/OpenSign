@@ -294,7 +294,7 @@ export default async function createDocumentWithTemplate(request, response) {
                   let params = {
                     recipient: contactMail[i].email,
                     subject: subject,
-                    from: sender,
+                    from: (process.env.SMTP_ENABLE ? process.env.SMTP_EMAIL || process.env.SMTP_USER : process.env.MAILGUN_SENDER) || sender,
                     html: html,
                     extUserId: template.ExtUserPtr.objectId,
                   };

@@ -128,7 +128,7 @@ export default async function resendMail(request, response) {
             let params = {
               recipient: contact.Email,
               subject: subject,
-              from: sender,
+              from: (process.env.SMTP_ENABLE ? process.env.SMTP_EMAIL || process.env.SMTP_USER : process.env.MAILGUN_SENDER) || sender,
               html: html,
               extUserId: _resDoc.ExtUserPtr.objectId,
             };

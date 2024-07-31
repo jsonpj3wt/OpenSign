@@ -150,7 +150,7 @@ async function sendCompletedMail(obj) {
   const params = {
     extUserId: sender.objectId,
     url: url,
-    from: 'OpenSign™',
+    from: 'OpenSign™' + ' <' + (process.env.SMTP_ENABLE ? process.env.SMTP_EMAIL || process.env.SMTP_USER : process.env.MAILGUN_SENDER) || sender.Email + '>',
     recipient: recipient,
     subject: subject,
     pdfName: pdfName,

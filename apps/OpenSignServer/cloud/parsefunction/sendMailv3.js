@@ -16,7 +16,7 @@ async function sendMailProvider(req) {
         port: process.env.SMTP_PORT || 465,
         secure: smtpsecure,
         auth: {
-          user: process.env.SMTP_USER_EMAIL,
+          user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
         },
       });
@@ -73,7 +73,7 @@ async function sendMailProvider(req) {
           console.log('Err in read certificate sendmailv3', err);
         }
         const from = req.params.from || '';
-        const mailsender = smtpenable ? process.env.SMTP_USER_EMAIL : process.env.MAILGUN_SENDER;
+        const mailsender = smtpenable ? process.env.SMTP_EMAIL : process.env.MAILGUN_SENDER;
 
         const messageParams = {
           from: from + ' <' + mailsender + '>',
@@ -191,8 +191,13 @@ async function sendmailv3(req) {
       return { status: 'error' };
     }
   } else {
-    const nonCustomMail = await sendMailProvider(req);
-    return nonCustomMail;
+    try {
+        const nonCustomMail = await sendMailProvider(req);
+        return nonCustomMail;
+    } catch (err) {
+      console.log('err in send non custom mail', err);
+      return { status: 'error' };
+    }
   }
 }
 

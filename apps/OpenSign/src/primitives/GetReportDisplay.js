@@ -727,7 +727,7 @@ const ReportTable = (props) => {
       extUserId: doc?.ExtUserPtr?.objectId,
       recipient: userDetails?.Email,
       subject: mail.subject,
-      from: doc?.ExtUserPtr?.Email,
+      from: (process.env.SMTP_ENABLE ? process.env.SMTP_EMAIL || process.env.SMTP_USER : process.env.MAILGUN_SENDER) || doc?.ExtUserPtr?.Email,
       html: mail.body
     };
     try {
