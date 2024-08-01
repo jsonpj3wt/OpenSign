@@ -16,6 +16,7 @@ services:
     depends_on:
       - mongo
     env_file: .env
+    restart: unless-stopped
     environment:
       - NODE_ENV=development
     networks:
@@ -26,6 +27,7 @@ services:
       dockerfile: Dockerfile
     container_name: mongo-container
     image: opensign-mongo
+    restart: unless-stopped
     volumes:
       - data-volume:/data/db
       - ./apps/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
@@ -41,6 +43,7 @@ services:
     container_name: OpenSign-container
     command: npm start
     env_file: .env
+    restart: unless-stopped
     volumes:
       - ./apps/OpenSign/:/usr/app
       - /usr/app/node_modules
