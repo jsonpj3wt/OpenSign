@@ -43,6 +43,10 @@ if (useLocal !== 'true') {
         };
     } else {
         s3Options.s3overrides = {
+            credentials: new AWS.EC2MetadataCredentials({
+                httpOptions: { timeout: 5000 }, // 5 seconds timeout
+                maxRetries: 10, // retry 10 times
+            }),
             endpoint: spacesEndpoint,
         };
     }
