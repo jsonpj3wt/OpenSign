@@ -49,7 +49,7 @@ async function uploadFile(req, res) {
     const DO_SECRET_ACCESS_KEY = process.env.DO_SECRET_ACCESS_KEY;
     const DO_SPACE = process.env.DO_SPACE;
 
-    const parseBaseUrl = cloudServerUrl; //process.env.SERVER_URL;
+    const parseBaseUrl = process.env.SERVER_URL; //cloudServerUrl;
     const parseAppId = process.env.APP_ID;
     let fileStorage;
     if (useLocal === 'true') {

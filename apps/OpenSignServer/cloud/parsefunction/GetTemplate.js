@@ -2,7 +2,7 @@ import axios from 'axios';
 import { cloudServerUrl } from '../../Utils.js';
 
 export default async function GetTemplate(request) {
-  const serverUrl = cloudServerUrl; //process.env.SERVER_URL;
+  const serverUrl = process.env.SERVER_URL; //cloudServerUrl;
   const templateId = request.params.templateId;
   const ispublic = request.params.ispublic;
 
