@@ -7,7 +7,7 @@ dotenv.config();
 export default async function getDocumentList(request, response) {
   const reqToken = request.headers['x-api-token'];
   const appId = process.env.APP_ID;
-  const serverUrl = cloudServerUrl; //process.env.SERVER_URL;
+  const serverUrl = process.env.SERVER_URL; //cloudServerUrl;
   if (!reqToken) {
     return response.status(400).json({ error: 'Please Provide API Token' });
   }

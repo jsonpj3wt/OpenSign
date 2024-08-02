@@ -5,7 +5,7 @@ export default async function callWebhook(request) {
   const body = request.params.body;
   const docId = body.objectId;
   const contactId = request.params.contactId;
-  const serverUrl = cloudServerUrl; //process.env.SERVER_URL;
+  const serverUrl = process.env.SERVER_URL; //cloudServerUrl;
   const appId = process.env.APP_ID;
   const userRes = await axios.get(serverUrl + '/users/me', {
     headers: {
