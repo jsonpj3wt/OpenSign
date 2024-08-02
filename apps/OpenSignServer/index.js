@@ -33,12 +33,20 @@ if (useLocal !== 'true') {
       presignedUrl: true,
       presignedUrlExpires: 900,
       fileAcl: 'none',
-      s3overrides: {
-        accessKeyId: process.env.DO_ACCESS_KEY_ID ?? undefined,
-        secretAccessKey: process.env.DO_SECRET_ACCESS_KEY ?? undefined,
-        endpoint: spacesEndpoint,
-      },
     };
+
+    if (process.env.DO_ACCESS_KEY_ID && process.env.DO_SECRET_ACCESS_KEY) {
+        s3Options.s3overrides = {
+            accessKeyId: process.env.DO_ACCESS_KEY_ID,
+            secretAccessKey: process.env.DO_SECRET_ACCESS_KEY,
+            endpoint: spacesEndpoint,
+        };
+    } else {
+        s3Options.s3overrides = {
+            endpoint: spacesEndpoint,
+        };
+    }
+
     fsAdapter = new S3Adapter(s3Options);
   } catch (err) {
     console.log('Please provide AWS credintials in env file! Defaulting to local storage.');
