@@ -1,5 +1,7 @@
-# Stage 1: Build the application
-FROM node:18 AS build
+# Use an official Node runtime as the base image
+FROM node:20
+
+# Set the working directory inside the container
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json first to leverage Docker cache

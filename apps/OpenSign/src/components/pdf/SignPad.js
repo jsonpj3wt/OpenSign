@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
 import SignatureCanvas from "react-signature-canvas";
-
 function SignPad({
   isSignPad,
   isStamp,
@@ -99,7 +98,12 @@ function SignPad({
               } else {
                 if (isTab === "type") {
                   setIsSignImg("");
-                  onSaveSign(null, false, textWidth, textHeight);
+                  onSaveSign(
+                    null,
+                    false,
+                    !isInitial && textWidth > 150 ? 150 : textWidth,
+                    !isInitial && textHeight > 35 ? 35 : textHeight
+                  );
                 } else {
                   setIsSignImg("");
                   canvasRef.current.clear();
@@ -149,7 +153,6 @@ function SignPad({
       const isWidgetType = currWidgetsDetails?.type;
       const signatureType = currWidgetsDetails?.signatureType;
       const url = currWidgetsDetails?.SignUrl;
-
       //checking widget type and draw type signature url
       if (isInitial) {
         if (isWidgetType === "initials" && signatureType === "draw" && url) {
@@ -212,11 +215,11 @@ function SignPad({
       : fontSelect
         ? fontSelect
         : "Fasthand";
-
+    const fontSizeValue = "40px";
     //creating span for getting text content width
     const span = document.createElement("span");
     span.textContent = textContent;
-    span.style.font = `20px ${fontfamily}`; // here put your text size and font family
+    span.style.font = `${fontSizeValue} ${fontfamily}`; // here put your text size and font family
     span.style.color = color ? color : penColor;
     span.style.display = "hidden";
     document.body.appendChild(span); // Replace 'container' with the ID of the container element
@@ -226,7 +229,8 @@ function SignPad({
     // Draw the text content on the canvas
     const ctx = canvasElement.getContext("2d");
     const pixelRatio = window.devicePixelRatio || 1;
-    const width = span.offsetWidth;
+    const addExtraWidth = isInitial ? 10 : 50;
+    const width = span.offsetWidth + addExtraWidth;
     const height = span.offsetHeight;
     setTextWidth(width);
     setTextHeight(height);
@@ -299,8 +303,9 @@ function SignPad({
                 <div className="flex flex-row justify-between mt-[3px]">
                   <div className="flex flex-row justify-between gap-[5px] md:gap-[8px] text-[11px] md:text-base">
                     {isStamp ? (
-                      <span className="op-link-primary op-link">
-                        {widgetType === "image"
+                      <span className="text-base-content font-bold text-lg">
+                        {widgetType === "image" ||
+                        currWidgetsDetails?.type === "image"
                           ? "Upload image"
                           : "Upload stamp image"}
                       </span>

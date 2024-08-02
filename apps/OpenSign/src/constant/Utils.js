@@ -7,7 +7,7 @@ import { appInfo } from "./appinfo";
 import { saveAs } from "file-saver";
 import printModule from "print-js";
 
-export const fontsizeArr = [7, 8, 9, 10, 11, 12, 13, 14, 15, 18];
+export const fontsizeArr = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28];
 export const fontColorArr = ["red", "black", "blue", "yellow"];
 export const isMobile = window.innerWidth < 767;
 export const isTabAndMobile = window.innerWidth < 1023;
@@ -598,7 +598,7 @@ export const signPdfFun = async (
         console.log("error", e);
       }
     }
-    //change image width and height to 104/44 in png base64
+    //change image width and height to 100/40 in png base64
     const getNewse64 = await changeImageWH(base64Sign);
     //remove suffiix of base64
     const suffixbase64 = getNewse64 && getNewse64.split(",").pop();
@@ -1238,9 +1238,8 @@ export const changeImageWH = async (base64Image) => {
       const ctx = canvas.getContext("2d");
       canvas.width = newWidth;
       canvas.height = newHeight;
-      ctx.imageSmoothingEnabled = false;
       ctx.drawImage(img, 0, 0, newWidth, newHeight);
-      const resizedBase64 = canvas.toDataURL("image/png", 1);
+      const resizedBase64 = canvas.toDataURL("image/png", 1.0);
       resolve(resizedBase64);
     };
     img.onerror = (error) => {
@@ -1249,14 +1248,30 @@ export const changeImageWH = async (base64Image) => {
   });
 };
 
+//function to calculate font size of text area widgets
+const calculateFontSize = (position, containerScale, signyourself) => {
+  const font = position?.options?.fontSize || 12;
+  if (!signyourself && position?.isMobile && position?.scale) {
+    return font / position?.scale / containerScale;
+  } else {
+    return font / containerScale;
+  }
+};
 //function for embed multiple signature using pdf-lib
 export const multiSignEmbed = async (
   xyPositionArray,
   pdfDoc,
   signyourself,
-  scale
+  scale,
+  pdfOriginalWH,
+  containerWH
 ) => {
   for (let item of xyPositionArray) {
+    const containerScale = getContainerScale(
+      pdfOriginalWH,
+      item?.pageNumber,
+      containerWH
+    );
     const typeExist = item.pos.some((data) => data?.type);
     let updateItem;
 
@@ -1416,7 +1431,13 @@ export const multiSignEmbed = async (
         }
       } else if (widgetTypeExist) {
         const font = await pdfDoc.embedFont("Helvetica");
-        const fontSize = parseInt(position?.options?.fontSize) || 12;
+        const fontSize = calculateFontSize(
+          position,
+          containerScale,
+          signyourself
+        );
+        parseInt(fontSize);
+
         const color = position?.options?.fontColor;
         let updateColorInRgb;
         if (color === "red") {
@@ -1591,7 +1612,7 @@ export const multiSignEmbed = async (
     });
   }
   const pdfBytes = await pdfDoc.saveAsBase64({ useObjectStreams: false });
-  // console.log("pdf", pdfBytes);
+  //console.log("pdf", pdfBytes);
   return pdfBytes;
 };
 
@@ -1957,6 +1978,20 @@ export const handleSendOTP = async (email) => {
     alert(error.message);
   }
 };
+export const fetchUrl = async (url, pdfName) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      alert("something went wrong, please try again later.");
+      throw new Error("Network response was not ok");
+    }
+    const blob = await response.blob();
+    saveAs(blob, `${sanitizeFileName(pdfName)}_signed_by_OpenSign™.pdf`);
+  } catch (error) {
+    alert("something went wrong, please try again later.");
+    console.error("Error downloading the file:", error);
+  }
+};
 //handle download signed pdf
 export const handleDownloadPdf = async (
   pdfDetails,
@@ -1979,7 +2014,7 @@ export const handleDownloadPdf = async (
       }
     );
     const url = axiosRes.data.result;
-    saveAs(url, `${sanitizeFileName(pdfName)}_signed_by_OpenSign™.pdf`);
+    await fetchUrl(url, pdfName);
     setIsDownloading("");
   } catch (err) {
     console.log("err in getsignedurl", err);
@@ -2211,3 +2246,11 @@ function getImagePosition(page, image, sizeRatio) {
     rotate: page.getRotation()
   };
 }
+//function to use calculate pdf rendering scale in the container
+export const getContainerScale = (pdfOriginalWH, pageNumber, containerWH) => {
+  const getPdfPageWidth = pdfOriginalWH.find(
+    (data) => data.pageNumber === pageNumber
+  );
+  const containerScale = containerWH?.width / getPdfPageWidth?.width || 1;
+  return containerScale;
+};

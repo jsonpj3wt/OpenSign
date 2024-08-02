@@ -678,7 +678,7 @@ function PdfRequestFiles(props) {
             widgetKey,
             radioExist,
             requiredCheckbox,
-            pageNumber; // `pageNumber` is used to check on which page user did not fill widget's data then change current pageNumber and show tour message on that page
+            TourPageNumber; // `pageNumber` is used to check on which page user did not fill widget's data then change current pageNumber and show tour message on that page
 
           for (let i = 0; i < checkUser[0].placeHolder.length; i++) {
             for (let j = 0; j < checkUser[0].placeHolder[i].pos.length; j++) {
@@ -726,7 +726,7 @@ function PdfRequestFiles(props) {
                     ) {
                       showAlert = true;
                       widgetKey = requiredCheckbox[i].key;
-                      pageNumber = updatePage;
+                      TourPageNumber = updatePage;
                       setminRequiredCount(parseMin);
                     }
                     //else condition to validate minimum required checkbox
@@ -737,8 +737,7 @@ function PdfRequestFiles(props) {
                       if (!showAlert) {
                         showAlert = true;
                         widgetKey = requiredCheckbox[i].key;
-                        pageNumber = updatePage;
-
+                        TourPageNumber = updatePage;
                         setminRequiredCount(parseMin);
                       }
                     }
@@ -764,7 +763,7 @@ function PdfRequestFiles(props) {
                       if (!checkDefaultSigned && !showAlert) {
                         showAlert = true;
                         widgetKey = requiredRadio[i].key;
-                        pageNumber = updatePage;
+                        TourPageNumber = updatePage;
                         setminRequiredCount(null);
                       }
                     }
@@ -792,7 +791,7 @@ function PdfRequestFiles(props) {
                         if (!checkDefaultSigned && !showAlert) {
                           showAlert = true;
                           widgetKey = requiredWidgets[i].key;
-                          pageNumber = updatePage;
+                          TourPageNumber = updatePage;
                           setminRequiredCount(null);
                         }
                       }
@@ -808,15 +807,15 @@ function PdfRequestFiles(props) {
           }
           if (checkboxExist && requiredCheckbox && showAlert) {
             setUnSignedWidgetId(widgetKey);
-            setPageNumber(pageNumber);
+            setPageNumber(TourPageNumber);
             setWidgetsTour(true);
           } else if (radioExist && showAlert) {
             setUnSignedWidgetId(widgetKey);
-            setPageNumber(pageNumber);
+            setPageNumber(TourPageNumber);
             setWidgetsTour(true);
           } else if (showAlert) {
             setUnSignedWidgetId(widgetKey);
-            setPageNumber(pageNumber);
+            setPageNumber(TourPageNumber);
             setWidgetsTour(true);
           } else {
             setIsUiLoading(true);
@@ -862,7 +861,9 @@ function PdfRequestFiles(props) {
                 pngUrl,
                 pdfDoc,
                 isSignYourSelfFlow,
-                scale
+                scale,
+                pdfOriginalWH,
+                containerWH
               );
               //  console.log("pdfte", pdfBytes);
               //get ExistUserPtr object id of user class to get tenantDetails
@@ -1590,6 +1591,17 @@ function PdfRequestFiles(props) {
       alert("Please Enter OTP!");
     }
   };
+  const handleCloseOtp = () => {
+    setIsPublicContact(false);
+    setLoading(false);
+    setIsOtp(false);
+    setOtp();
+    setContact({
+      name: "",
+      email: "",
+      phone: ""
+    });
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -1719,16 +1731,18 @@ function PdfRequestFiles(props) {
 
                 <ModalUi
                   isOpen={isPublicContact}
-                  title={"Contact Details"}
+                  title={isOtp ? "Verify email" : "Contact Details"}
                   handleClose={() => {
-                    setIsPublicContact(false);
+                    handleCloseOtp();
                   }}
                 >
                   <div className="h-full p-[20px]">
                     {isOtp ? (
                       <form onSubmit={VerifyOTP}>
                         <div className="flex flex-col gap-2">
-                          <span>You will get a OTP via Email</span>
+                          <span>
+                            You will get a verification code via email
+                          </span>
                           <label className="op-input op-input-bordered flex items-center gap-2 ">
                             <input
                               type="number"
@@ -1747,16 +1761,7 @@ function PdfRequestFiles(props) {
                             <button
                               className="op-btn op-btn-ghost"
                               onClick={() => {
-                                // document.getElementById("my_modal").close();
-                                setIsPublicContact(false);
-                                setLoading(false);
-                                setIsOtp(false);
-                                setOtp();
-                                setContact({
-                                  name: "",
-                                  email: "",
-                                  phone: ""
-                                });
+                                handleCloseOtp();
                               }}
                             >
                               Cancel
@@ -1840,8 +1845,7 @@ function PdfRequestFiles(props) {
                             <button
                               className="op-btn op-btn-ghost"
                               onClick={() => {
-                                // document.getElementById("my_modal").close();
-                                setIsPublicContact(false);
+                                handleCloseOtp();
                               }}
                             >
                               Close
