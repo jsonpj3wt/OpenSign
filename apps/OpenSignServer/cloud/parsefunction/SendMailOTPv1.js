@@ -25,7 +25,7 @@ async function sendMailOTPv1(request) {
 
     if (email) {
       const recipient = request.params.email;
-      const mailsender = smtpenable ? process.env.SMTP_USER_EMAIL : process.env.MAILGUN_SENDER;
+      const mailsender = smtpenable ? process.env.SMTP_EMAIL : process.env.MAILGUN_SENDER;
       try {
         await Parse.Cloud.sendEmail({
           from: 'Opensign™' + ' <' + mailsender + '>',
