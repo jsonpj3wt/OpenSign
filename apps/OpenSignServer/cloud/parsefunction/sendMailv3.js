@@ -127,7 +127,7 @@ async function sendMailProvider(req) {
       }
     } else {
       const from = req.params.from || '';
-      const mailsender = smtpenable ? process.env.SMTP_USER_EMAIL : process.env.MAILGUN_SENDER;
+      const mailsender = smtpenable ? process.env.SMTP_EMAIL : process.env.MAILGUN_SENDER;
 
       const messageParams = {
         from: from + ' <' + mailsender + '>',
