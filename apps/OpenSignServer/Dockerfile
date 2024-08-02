@@ -17,7 +17,7 @@ COPY . .
 # RUN npm run build
 
 # Stage 2: Prepare runtime environment
-FROM node:18
+FROM node:20
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to install only production dependencies
