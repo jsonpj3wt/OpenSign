@@ -2,7 +2,7 @@ import { generateApiKey } from 'generate-api-key';
 import axios from 'axios';
 import { cloudServerUrl } from '../../Utils.js';
 export default async function generateApiToken(request) {
-  const serverUrl = process.env.SERVER_URL; //cloudServerUrl;
+  const serverUrl = cloudServerUrl; //process.env.SERVER_URL;
   try {
     const userRes = await axios.get(serverUrl + '/users/me', {
       headers: {
